@@ -2,6 +2,13 @@ import React, { Component } from "react";
 import Square from "./Square.js";
 
 export default class Board extends Component {
+  constructor() {
+    super();
+    this.state = {
+      turn: 0
+    };
+  }
+
   onSquareClick = index => {
     //copy square array
     let copyArray = this.props.squaresArray.slice();
@@ -9,7 +16,11 @@ export default class Board extends Component {
     if (copyArray[index] === "") {
       if (this.props.nextPlayer) copyArray[index] = "X";
       else copyArray[index] = "0";
-      let obj = { squaresArray: copyArray, nextPlayer: !this.props.nextPlayer };
+      let obj = {
+        squaresArray: copyArray,
+        nextPlayer: !this.props.nextPlayer,
+        turn: this.props.turn
+      };
       this.props.parentCallBack(obj);
     }
   };

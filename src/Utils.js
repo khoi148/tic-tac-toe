@@ -22,5 +22,7 @@ export function checkGameIsOver(array) {
       return true;
     }
   }
+  //tie check
+  if (array.every(item => item !== "")) return null;
   return false;
 }

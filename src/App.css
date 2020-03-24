@@ -1,3 +1,13 @@
 body {
-  border: 1px solid red;
+  padding-bottom: 60px;
+}
+#historyButtons {
+  border-radius: 10px;
+}
+#historyButtons:hover {
+  background-color: white !important;
+  font-size: 1.3rem;
+}
+#mySquare:hover {
+  background-color: aliceblue !important;
 }

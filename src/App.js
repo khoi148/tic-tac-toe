@@ -4,6 +4,8 @@ import "./App.css";
 import { checkGameIsOver } from "./Utils.js";
 import MoveHistory from "./components/MoveHistory.js";
 
+let winner = false; //false is X, true is O, and null is tie
+let turn = 0;
 export default class App extends Component {
   constructor() {
     super();
@@ -12,7 +14,7 @@ export default class App extends Component {
       arrayOfMoves: [],
       gameIsOver: false,
       nextPlayer: true
-    };
+    }; //true corresponds to X, false to 0
   }
   resetGame = () => {
     this.setState({
@@ -22,30 +24,56 @@ export default class App extends Component {
       nextPlayer: true
     });
   };
-  setParentState = obj => {
-    //receives newSquares array from Board.js onclick
+  //takes input board = {squaresArray: copyArray, nextPlayer: !this.props.nextPlayer, turn: INTEGER } from Board.js
+  setParentState = board => {
     if (this.state.gameIsOver === false) {
-      // let obj = { gameIsOver: true, arrayOfMoves: this.state.arrayOfMoves };
-      // this.setMoveHistory(obj)
-      this.setState(obj);
+      this.setMoveHistory(board.squaresArray, board.turn);
+      this.setState(board); //setting Board and NextPlayer after a click. Switches to other player
+      console.log("turn", turn);
+      ++turn;
     }
-    console.log(this.state.squaresArray);
   };
-
-  setMoveHistory = obj => {
+  setMoveHistory = (boardState, turn) => {
+    // console.log(turn);
+    //only insert the next board state in the history array, where current turn is higher than the first lower turn
+    let curr = { arrayOfMoves: this.state.arrayOfMoves };
     let historyObj = {
-      turn: 0,
-      board: this.state.squaresArray
+      turn: turn,
+      board: boardState,
+      player: this.state.nextPlayer
     };
-    obj.arrayOfMoves.push(historyObj);
-    console.log("hi", obj);
-    return obj;
+    //remember that turn value is currently on the next turn to be implemented. so if [0,1,2,3] turn would be 4
+    let resultIndex = curr.arrayOfMoves.findIndex(item => turn <= item.turn);
+    if (resultIndex === -1) {
+      curr.arrayOfMoves.push(historyObj);
+      this.setState(curr);
+    } else {
+      //input element into that index in array, since that turn already exists. Also delete all future turns from that point
+      let arrayCopy = curr.arrayOfMoves.slice(0, resultIndex);
+      arrayCopy.push(historyObj);
+      this.setState({ arrayOfMoves: arrayCopy });
+    }
+  };
+  goBackInTime = turnData => {
+    //turndata is {turn: INTEGER, board: ARRAY, player: BOOLEAN}
+    console.log("well", turnData);
+    //1. set if game is over or not on this turn,
+    //2. And set current Player to past move
+    //3. set new Board
+    turn = turnData.turn + 1; //set the new next turn as well
+    console.log("well turn", turn);
+    this.setState({
+      gameIsOver: checkGameIsOver(turnData.board),
+      nextPlayer: !turnData.player,
+      squaresArray: turnData.board
+    });
   };
 
   componentWillUpdate(nextProps, nextState) {
+    winner = checkGameIsOver(nextState.squaresArray);
     if (
       this.state.gameIsOver === false &&
-      checkGameIsOver(nextState.squaresArray) === true
+      (winner === true || winner === null)
     ) {
       //add in the move history, before setting
       this.setState({ gameIsOver: true });
@@ -55,35 +83,51 @@ export default class App extends Component {
   render() {
     return (
       <div className="row">
-        <div className="col-8">
+        <div className="col-md-8 d-flex flex-column align-items-center">
           <h1>Tic Tac Toe</h1>
-          {this.state.gameIsOver === true && (
-            <div className="d-flex align-items-center justify-content-between w-25 border my-3">
-              <h1 style={styles.fontSize1}>Game is Over</h1>
-              <button
-                style={styles.fontSize1}
-                className="btn bg-primary"
-                onClick={() => this.resetGame()}
-              >
-                Reset Game
-              </button>
-            </div>
-          )}
+
           <Board
             {...this.state}
             parentCallBack={obj => this.setParentState(obj)}
+            turn={turn}
           />
         </div>
-        <div className="col-4">
-          It is player {this.state.nextPlayer ? "1" : "2"}'s turn
-          {console.log(this.state.arrayOfMoves)}
-          <MoveHistory history={this.state.arrayOfMoves} />
+        <div className="col-md-4 bg-warning">
+          <div className="text-center my-5">
+            {this.state.gameIsOver === true && (
+              <div className="d-flex flex-columns align-items-center my-3">
+                <div className="w-100">
+                  {winner === null ? (
+                    <h2>It's a tie!</h2>
+                  ) : (
+                    <h2>
+                      The winner is{" "}
+                      {this.state.nextPlayer === false
+                        ? "Player 1"
+                        : "Player 2"}
+                    </h2>
+                  )}
+                  <button
+                    className="btn bg-dark text-warning"
+                    onClick={() => this.resetGame()}
+                  >
+                    Reset Game
+                  </button>
+                </div>
+              </div>
+            )}
+            {this.state.gameIsOver !== true && (
+              <h2>
+                It is player {this.state.nextPlayer === true ? "1" : "2"}'s turn
+              </h2>
+            )}
+          </div>
+          <MoveHistory
+            history={this.state.arrayOfMoves}
+            parentMethod={turnData => this.goBackInTime(turnData)}
+          />
         </div>
       </div>
     );
   }
 }
-
-const styles = {
-  fontSize1: { fontSize: "10px" }
-};

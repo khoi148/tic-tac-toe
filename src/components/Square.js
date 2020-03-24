@@ -4,16 +4,21 @@ export default class Square extends Component {
   render() {
     return (
       <div
-        style={{
-          height: "200px",
-          width: "200px",
-          border: "1px solid black",
-          fontSize: "18px"
-        }}
+        id="mySquare"
+        className="bg-success"
+        style={styles.squareStyle}
         onClick={() => this.props.onClick()}
       >
-        Square {this.props.value}
+        <div className="text-center">{this.props.value}</div>
       </div>
     );
   }
 }
+const styles = {
+  squareStyle: {
+    height: "180px",
+    width: "180px",
+    border: "1px solid black",
+    fontSize: "120px"
+  }
+};
