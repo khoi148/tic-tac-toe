@@ -28,7 +28,8 @@ const styles = {
   historyButtons: {
     outline: "none",
     border: "none",
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
+    fontSize: "24px"
   }
 };
 //format of props.history. An array of objects [{turn: INTEGER, board: ARRAY} ]

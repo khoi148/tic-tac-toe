@@ -118,87 +118,94 @@ export default class App extends Component {
   };
   render() {
     return (
-      <div className="row">
-        <div className="col-md-3 bg-warning">
-          <div className="text-center my-4">
-            {this.state.gameIsOver === true && (
-              <div className="d-flex flex-columns align-items-center my-3">
-                <div className="w-100">
-                  {winner === null ? (
-                    <h2>It's a tie!</h2>
-                  ) : (
-                    <h2>
-                      The winner is{" "}
-                      {this.state.nextPlayer === false
-                        ? "Player 1"
-                        : "Player 2"}
-                    </h2>
-                  )}
-                  <button
-                    className="btn bg-dark text-warning"
-                    onClick={() => this.resetGame()}
-                  >
-                    Reset Game
-                  </button>
+      <div>
+        <h1 className="text-center mb-5">Tic Tac Toe</h1>
+        <div className="row w-100">
+          <div className="col-md-3 bg-warning">
+            <div className="text-center mb-4">
+              {this.state.gameIsOver === true && (
+                <div className="d-flex flex-columns align-items-center my-3">
+                  <div className="w-100">
+                    {winner === null ? (
+                      <h2>It's a tie!</h2>
+                    ) : (
+                      <h2>
+                        The winner is{" "}
+                        {this.state.nextPlayer === false
+                          ? "Player 1"
+                          : "Player 2"}
+                      </h2>
+                    )}
+                    <button
+                      className="btn bg-dark text-warning"
+                      onClick={() => this.resetGame()}
+                    >
+                      Reset Game
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-            {this.state.gameIsOver !== true && (
-              <h2>
-                It is player {this.state.nextPlayer === true ? "1" : "2"}'s turn
-              </h2>
-            )}
-          </div>
-          <MoveHistory
-            history={this.state.arrayOfMoves}
-            parentMethod={turnData => this.goBackInTime(turnData)}
-          />
-        </div>
-
-        <div className="col-md-6 d-flex flex-column align-items-center">
-          <h1>Tic Tac Toe</h1>
-          {this.state.user === "" ? (
-            <FacebookLogin
-              appId="1697520650390930"
-              autoLoad={true}
-              fields="name,email,picture"
-              callback={this.responseFacebook}
+              )}
+              {this.state.gameIsOver !== true && (
+                <h2>
+                  It is player {this.state.nextPlayer === true ? "1" : "2"}'s
+                  turn
+                </h2>
+              )}
+            </div>
+            <MoveHistory
+              history={this.state.arrayOfMoves}
+              parentMethod={turnData => this.goBackInTime(turnData)}
             />
-          ) : (
-            <h1>User info: {this.state.user}</h1>
-          )}
-          <Board
-            {...this.state}
-            parentCallBack={obj => this.setParentState(obj)}
-            turn={turn}
-            postData={this.postData}
-          />
-        </div>
-        <div className="col-md-3 d-flex flex-column align-items-center bg-warning text-dark p-3">
-          <h2>Leaderboard</h2>
-          <table className="w-100 bg-dark text-warning rounded p-3">
-            <tr className="p-3">
-              <th>Rank</th>
-              <th>Player</th>
-              <th>Score</th>
-              <th>Date</th>
-            </tr>
-            {this.state.leaderboard.length !== 0 &&
-              this.state.leaderboard
-                .sort((item1, item2) => item2.score - item1.score)
-                .map((item, index) => {
-                  return (
-                    <tr>
-                      <td>{index + 1}</td>
-                      <td>{item.player}</td>
-                      <td>{item.score}</td>
-                      <td>{moment(item.createdAt).format("MM-DD hh:mmA")}</td>
-                    </tr>
-                  );
-                })}
-          </table>
+          </div>
+          <div className="col-md-6 d-flex flex-column bg-warning align-items-center">
+            <div className="mb-4">
+              {this.state.user === "" ? (
+                <FacebookLogin
+                  appId="1697520650390930"
+                  autoLoad={true}
+                  fields="name,email,picture"
+                  callback={this.responseFacebook}
+                />
+              ) : (
+                <h1>User info: {this.state.user}</h1>
+              )}
+            </div>
+            <Board
+              {...this.state}
+              parentCallBack={obj => this.setParentState(obj)}
+              turn={turn}
+              postData={this.postData}
+            />
+          </div>
+          <div className="col-md-3 d-flex flex-column align-items-center bg-warning text-dark">
+            <h2>Leaderboard</h2>
+            <table className="w-100 bg-dark text-warning rounded p-3">
+              <tr className="p-3">
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Score</th>
+                <th>Date</th>
+              </tr>
+              {this.state.leaderboard.length !== 0 &&
+                this.state.leaderboard
+                  .sort((item1, item2) => item2.score - item1.score)
+                  .map((item, index) => {
+                    return (
+                      <tr>
+                        <td>{index + 1}</td>
+                        <td>{item.player}</td>
+                        <td>{item.score}</td>
+                        <td>{moment(item.createdAt).format("MM-DD hh:mmA")}</td>
+                      </tr>
+                    );
+                  })}
+            </table>
+          </div>
         </div>
       </div>
     );
   }
 }
+const styles = {
+  fontSize1: { fontSize: "5px !important" }
+};

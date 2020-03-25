@@ -1,5 +1,7 @@
 body {
+  padding-top: 30px;
   padding-bottom: 60px;
+  background-color: #ffc107;
 }
 #historyButtons {
   border-radius: 10px;

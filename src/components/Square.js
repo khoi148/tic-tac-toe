@@ -16,9 +16,9 @@ export default class Square extends Component {
 }
 const styles = {
   squareStyle: {
-    height: "180px",
-    width: "180px",
+    height: "140px",
+    width: "140px",
     border: "1px solid black",
-    fontSize: "120px"
+    fontSize: "100px"
   }
 };
