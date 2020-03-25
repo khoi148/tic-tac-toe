@@ -97,7 +97,7 @@ export default class App extends Component {
     // let num = this.state.arrayOfMoves.length;
     data.append("player", this.state.user);
     data.append("score", 99);
-    const url = `http://ftw-highscores.herokuapp.com/tictactoe-dev`;
+    const url = `https://ftw-highscores.herokuapp.com/tictactoe-dev`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -110,7 +110,7 @@ export default class App extends Component {
     // We actually don't care about the response ... do we?
   };
   getData = async () => {
-    const url = `http://ftw-highscores.herokuapp.com/tictactoe-dev`;
+    const url = `https://ftw-highscores.herokuapp.com/tictactoe-dev`;
     let data = await fetch(url);
     let result = await data.json();
     console.log("data from api", result);
