@@ -3,9 +3,12 @@ import Board from "./components/Board.js";
 import "./App.css";
 import { checkGameIsOver } from "./Utils.js";
 import MoveHistory from "./components/MoveHistory.js";
+import FacebookLogin from "react-facebook-login";
 
 let winner = false; //false is X, true is O, and null is tie
 let turn = 0;
+var moment = require("moment");
+
 export default class App extends Component {
   constructor() {
     super();
@@ -13,7 +16,9 @@ export default class App extends Component {
       squaresArray: ["", "", "", "", "", "", "", "", ""],
       arrayOfMoves: [],
       gameIsOver: false,
-      nextPlayer: true
+      nextPlayer: true,
+      user: "",
+      leaderboard: []
     }; //true corresponds to X, false to 0
   }
   resetGame = () => {
@@ -71,29 +76,51 @@ export default class App extends Component {
 
   componentWillUpdate(nextProps, nextState) {
     winner = checkGameIsOver(nextState.squaresArray);
+    //when you win a game
     if (
       this.state.gameIsOver === false &&
       (winner === true || winner === null)
     ) {
       //add in the move history, before setting
+      console.log("hi");
+      this.postData();
+      this.getData();
       this.setState({ gameIsOver: true });
     }
   }
-
+  responseFacebook = response => {
+    // console.log(response);
+    this.setState({ user: response.name });
+  };
+  postData = async () => {
+    let data = new URLSearchParams();
+    // let num = this.state.arrayOfMoves.length;
+    data.append("player", this.state.user);
+    data.append("score", 99);
+    const url = `http://ftw-highscores.herokuapp.com/tictactoe-dev`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: data.toString(),
+      json: true
+    });
+    console.log(response);
+    // We actually don't care about the response ... do we?
+  };
+  getData = async () => {
+    const url = `http://ftw-highscores.herokuapp.com/tictactoe-dev`;
+    let data = await fetch(url);
+    let result = await data.json();
+    console.log("data from api", result);
+    this.setState({ leaderboard: result.items });
+  };
   render() {
     return (
       <div className="row">
-        <div className="col-md-8 d-flex flex-column align-items-center">
-          <h1>Tic Tac Toe</h1>
-
-          <Board
-            {...this.state}
-            parentCallBack={obj => this.setParentState(obj)}
-            turn={turn}
-          />
-        </div>
-        <div className="col-md-4 bg-warning">
-          <div className="text-center my-5">
+        <div className="col-md-3 bg-warning">
+          <div className="text-center my-4">
             {this.state.gameIsOver === true && (
               <div className="d-flex flex-columns align-items-center my-3">
                 <div className="w-100">
@@ -126,6 +153,50 @@ export default class App extends Component {
             history={this.state.arrayOfMoves}
             parentMethod={turnData => this.goBackInTime(turnData)}
           />
+        </div>
+
+        <div className="col-md-6 d-flex flex-column align-items-center">
+          <h1>Tic Tac Toe</h1>
+          {this.state.user === "" ? (
+            <FacebookLogin
+              appId="1697520650390930"
+              autoLoad={true}
+              fields="name,email,picture"
+              callback={this.responseFacebook}
+            />
+          ) : (
+            <h1>User info: {this.state.user}</h1>
+          )}
+          <Board
+            {...this.state}
+            parentCallBack={obj => this.setParentState(obj)}
+            turn={turn}
+            postData={this.postData}
+          />
+        </div>
+        <div className="col-md-3 d-flex flex-column align-items-center bg-warning text-dark p-3">
+          <h2>Leaderboard</h2>
+          <table className="w-100 bg-dark text-warning rounded p-3">
+            <tr className="p-3">
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Score</th>
+              <th>Date</th>
+            </tr>
+            {this.state.leaderboard.length !== 0 &&
+              this.state.leaderboard
+                .sort((item1, item2) => item2.score - item1.score)
+                .map((item, index) => {
+                  return (
+                    <tr>
+                      <td>{index + 1}</td>
+                      <td>{item.player}</td>
+                      <td>{item.score}</td>
+                      <td>{moment(item.createdAt).format("MM-DD hh:mmA")}</td>
+                    </tr>
+                  );
+                })}
+          </table>
         </div>
       </div>
     );
