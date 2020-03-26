@@ -8,6 +8,7 @@ import FacebookLogin from "react-facebook-login";
 let winner = false; //false is X, true is O, and null is tie
 let turn = 0;
 var moment = require("moment");
+let startTime = 0;
 
 export default class App extends Component {
   constructor() {
@@ -22,6 +23,7 @@ export default class App extends Component {
     }; //true corresponds to X, false to 0
   }
   resetGame = () => {
+    startTime = 0;
     this.setState({
       squaresArray: ["", "", "", "", "", "", "", "", ""],
       arrayOfMoves: [],
@@ -32,6 +34,7 @@ export default class App extends Component {
   //takes input board = {squaresArray: copyArray, nextPlayer: !this.props.nextPlayer, turn: INTEGER } from Board.js
   setParentState = board => {
     if (this.state.gameIsOver === false) {
+      if (startTime === 0) startTime = Date.now();
       this.setMoveHistory(board.squaresArray, board.turn);
       this.setState(board); //setting Board and NextPlayer after a click. Switches to other player
       console.log("turn", turn);
@@ -83,7 +86,8 @@ export default class App extends Component {
     ) {
       //add in the move history, before setting
       console.log("hi");
-      this.postData();
+      let duration = Date.now() - startTime;
+      this.postData(duration);
       this.getData();
       this.setState({ gameIsOver: true });
     }
@@ -92,11 +96,11 @@ export default class App extends Component {
     // console.log(response);
     this.setState({ user: response.name });
   };
-  postData = async () => {
+  postData = async duration => {
     let data = new URLSearchParams();
     // let num = this.state.arrayOfMoves.length;
     data.append("player", this.state.user);
-    data.append("score", 99);
+    data.append("score", duration);
     const url = `https://ftw-highscores.herokuapp.com/tictactoe-dev`;
     const response = await fetch(url, {
       method: "POST",
@@ -114,6 +118,7 @@ export default class App extends Component {
     let data = await fetch(url);
     let result = await data.json();
     console.log("data from api", result);
+    // return result.items;
     this.setState({ leaderboard: result.items });
   };
   render() {
@@ -206,6 +211,3 @@ export default class App extends Component {
     );
   }
 }
-const styles = {
-  fontSize1: { fontSize: "5px !important" }
-};
